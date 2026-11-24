@@ -1,0 +1,2185 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DIALYSENSE — Penilaian Risiko Hemodinamik & Kardiovaskular</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Onest:wght@400..700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --pink-50: #fff2f6;
+      --pink-100: #ffe1eb;
+      --pink-200: #ffc4d7;
+      --pink-300: #ff95b6;
+      --pink-400: #ff6497;
+      --pink-500: #f53d7d;
+      --pink-600: #dc2368;
+      --pink-700: #b41552;
+      --pink-800: #8a1141;
+
+      --bg: #fff7fa;
+      --surface: #ffffff;
+      --ink: #35091d;
+      --ink-2: #6f3a51;
+      --ink-3: #a5738a;
+      --line: #f6dbe5;
+      --line-2: #efc6d5;
+
+      --low: #17a07b;
+      --low-soft: #e5f7f1;
+      --med: #e48a0c;
+      --med-soft: #fff3df;
+      --high: #dc1f4f;
+      --high-soft: #ffe5ec;
+
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+      --spring: cubic-bezier(0.34, 1.45, 0.64, 1);
+      --font-display: 'Bricolage Grotesque', 'Segoe UI', sans-serif;
+      --font-body: 'Onest', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --shadow: 0 1px 2px rgba(53, 9, 29, 0.04), 0 12px 32px -12px rgba(180, 21, 82, 0.18);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    button, input { font-family: inherit; }
+
+    /* ============ HERO ============ */
+    .hero {
+      position: relative;
+      background: linear-gradient(118deg, #ff6a9b 0%, var(--pink-500) 42%, var(--pink-600) 100%);
+      color: #fff;
+      padding: 0 0 132px;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.16) 1px, transparent 1px);
+      background-size: 22px 22px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.9), transparent 85%);
+      -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,0.9), transparent 85%);
+      z-index: -1;
+    }
+
+    .ecg {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 54px;
+      width: 100%;
+      height: 120px;
+      z-index: -1;
+      opacity: 0.9;
+    }
+
+    .ecg-base {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.18);
+      stroke-width: 1.5;
+    }
+
+    .ecg-pulse {
+      fill: none;
+      stroke: #fff;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 260 2400;
+      stroke-dashoffset: 260;
+      animation: ecgRun 4.2s linear infinite;
+      filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.7));
+    }
+
+    @keyframes ecgRun {
+      from { stroke-dashoffset: 260; }
+      to { stroke-dashoffset: -2400; }
+    }
+
+    .wrap {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 22px 0;
+      gap: 16px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: 0.06em;
+    }
+
+    .logo-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: #fff;
+      color: var(--pink-600);
+      display: grid;
+      place-items: center;
+    }
+
+    .nav-meta {
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.85);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 0 0 0 rgba(255,255,255,0.7);
+      animation: livePulse 2s ease-out infinite;
+    }
+
+    @keyframes livePulse {
+      0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.7); }
+      100% { box-shadow: 0 0 0 9px rgba(255,255,255,0); }
+    }
+
+    .hero-body {
+      padding: 40px 0 0;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 28px;
+      align-items: end;
+    }
+
+    @media (min-width: 900px) {
+      .hero-body { grid-template-columns: 1.4fr 1fr; }
+    }
+
+    .hero-kicker {
+      display: inline-block;
+      font-size: 0.76rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 6px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      border-radius: 999px;
+      margin-bottom: 18px;
+    }
+
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 5vw, 3.6rem);
+      font-weight: 700;
+      line-height: 1.02;
+      letter-spacing: -0.03em;
+      margin: 0 0 16px;
+    }
+
+    .hero h1 em {
+      font-style: normal;
+      color: var(--pink-100);
+      position: relative;
+    }
+
+    .hero-lead {
+      font-size: 1rem;
+      line-height: 1.65;
+      color: rgba(255, 255, 255, 0.9);
+      max-width: 520px;
+      margin: 0;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid rgba(255, 255, 255, 0.35);
+    }
+
+    .hero-stat {
+      padding: 16px 0 0;
+    }
+
+    .hero-stat + .hero-stat {
+      padding-left: 18px;
+      border-left: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .hero-stat b {
+      display: block;
+      font-family: var(--font-display);
+      font-size: 1.7rem;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .hero-stat span {
+      font-size: 0.78rem;
+      color: rgba(255, 255, 255, 0.82);
+    }
+
+    /* ============ MAIN ============ */
+    .main {
+      margin-top: -96px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (min-width: 960px) {
+      .grid { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); }
+      .side { position: sticky; top: 20px; }
+    }
+
+    .card {
+      background: var(--surface);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(246, 219, 229, 0.8);
+    }
+
+    .reveal {
+      animation: rise 0.7s var(--ease) both;
+    }
+
+    .reveal.d1 { animation-delay: 0.08s; }
+    .reveal.d2 { animation-delay: 0.16s; }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    /* Form card */
+    .form-card { padding: 28px 30px 24px; }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .card-head h2 {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 0;
+    }
+
+    .card-head p {
+      margin: 2px 0 0;
+      font-size: 0.85rem;
+      color: var(--ink-3);
+    }
+
+    .ring-progress {
+      position: relative;
+      width: 54px;
+      height: 54px;
+      flex-shrink: 0;
+    }
+
+    .ring-progress svg { transform: rotate(-90deg); }
+
+    .ring-track { fill: none; stroke: var(--pink-100); stroke-width: 5; }
+
+    .ring-fill {
+      fill: none;
+      stroke: var(--pink-500);
+      stroke-width: 5;
+      stroke-linecap: round;
+      stroke-dasharray: 138.2;
+      stroke-dashoffset: 138.2;
+      transition: stroke-dashoffset 0.5s var(--ease);
+    }
+
+    .ring-label {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: var(--pink-700);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Stepper */
+    .steps { list-style: none; margin: 0; padding: 0; }
+
+    .step {
+      position: relative;
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 16px;
+      padding-bottom: 26px;
+    }
+
+    .step:last-child { padding-bottom: 4px; }
+
+    .step::before {
+      content: "";
+      position: absolute;
+      left: 16px;
+      top: 38px;
+      bottom: 4px;
+      width: 2px;
+      background: var(--line);
+      border-radius: 2px;
+    }
+
+    .step::after {
+      content: "";
+      position: absolute;
+      left: 16px;
+      top: 38px;
+      width: 2px;
+      height: 0;
+      background: var(--pink-400);
+      border-radius: 2px;
+      transition: height 0.5s var(--ease);
+    }
+
+    .step.done::after { height: calc(100% - 42px); }
+    .step:last-child::before, .step:last-child::after { display: none; }
+
+    .marker {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 2px solid var(--line-2);
+      color: var(--ink-3);
+      display: grid;
+      place-items: center;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.86rem;
+      position: relative;
+      z-index: 1;
+      transition: background 0.3s var(--ease), border-color 0.3s var(--ease), color 0.3s, transform 0.4s var(--spring), box-shadow 0.3s;
+    }
+
+    .marker svg { display: none; }
+
+    .step:focus-within .marker {
+      border-color: var(--pink-400);
+      color: var(--pink-600);
+      box-shadow: 0 0 0 5px var(--pink-100);
+    }
+
+    .step.done .marker {
+      background: var(--pink-500);
+      border-color: var(--pink-500);
+      color: #fff;
+      transform: scale(1.04);
+    }
+
+    .step.done .marker span { display: none; }
+    .step.done .marker svg { display: block; animation: checkIn 0.35s var(--spring); }
+
+    @keyframes checkIn {
+      from { transform: scale(0.3) rotate(-25deg); opacity: 0; }
+      to { transform: none; opacity: 1; }
+    }
+
+    .step-body { min-width: 0; padding-top: 4px; }
+
+    .step-title {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .step-title label, .step-title .t {
+      font-weight: 600;
+      font-size: 0.98rem;
+      color: var(--ink);
+    }
+
+    .step-title small {
+      font-size: 0.78rem;
+      color: var(--ink-3);
+      text-align: right;
+    }
+
+    /* Age */
+    .age-row {
+      display: flex;
+      align-items: stretch;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .num-field {
+      display: flex;
+      align-items: stretch;
+      border: 1.5px solid var(--line-2);
+      border-radius: 14px;
+      background: var(--pink-50);
+      overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+
+    .num-field:focus-within {
+      border-color: var(--pink-500);
+      background: #fff;
+      box-shadow: 0 0 0 4px var(--pink-100);
+    }
+
+    .num-field.invalid {
+      border-color: var(--high);
+      box-shadow: 0 0 0 4px var(--high-soft);
+    }
+
+    .num-btn {
+      width: 44px;
+      border: none;
+      background: transparent;
+      color: var(--pink-600);
+      font-size: 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .num-btn:hover { background: var(--pink-100); }
+    .num-btn:active { background: var(--pink-200); }
+
+    .num-input-wrap {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      padding: 10px 4px;
+    }
+
+    .num-input-wrap input {
+      width: 68px;
+      border: none;
+      background: transparent;
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--ink);
+      text-align: center;
+      outline: none;
+      font-variant-numeric: tabular-nums;
+      -moz-appearance: textfield;
+    }
+
+    .num-input-wrap input::-webkit-outer-spin-button,
+    .num-input-wrap input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+    .num-input-wrap input::placeholder { color: var(--pink-300); }
+
+    .num-input-wrap span { font-size: 0.82rem; color: var(--ink-3); }
+
+    .age-track-box {
+      flex: 1;
+      min-width: 220px;
+      border: 1.5px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 14px 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .age-track {
+      position: relative;
+      display: grid;
+      grid-template-columns: 18fr 42fr 40fr;
+      gap: 3px;
+      height: 8px;
+      margin: 6px 0 8px;
+    }
+
+    .age-track i {
+      display: block;
+      border-radius: 4px;
+      background: var(--pink-100);
+      transition: background 0.3s;
+    }
+
+    .age-track i.on { background: var(--pink-400); }
+
+    .age-pin {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #fff;
+      border: 3px solid var(--pink-600);
+      transform: translate(-50%, -50%) scale(0);
+      transition: left 0.45s var(--ease), transform 0.35s var(--spring);
+    }
+
+    .age-pin.show { transform: translate(-50%, -50%) scale(1); }
+
+    .age-legend {
+      display: grid;
+      grid-template-columns: 18fr 42fr 40fr;
+      font-size: 0.72rem;
+      color: var(--ink-3);
+    }
+
+    .age-legend span.on { color: var(--pink-700); font-weight: 600; }
+
+    .age-msg {
+      font-size: 0.8rem;
+      color: var(--high);
+      margin-top: 8px;
+      display: none;
+    }
+
+    .age-msg.show { display: block; }
+
+    /* Segmented */
+    .seg {
+      display: grid;
+      gap: 10px;
+    }
+
+    .seg.c2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .seg.c3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .opt { position: relative; }
+
+    .opt input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .opt label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 13px 14px;
+      border: 1.5px solid var(--line-2);
+      border-radius: 14px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 0.92rem;
+      font-weight: 500;
+      color: var(--ink);
+      min-height: 54px;
+      transition: border-color 0.2s, background 0.2s, transform 0.2s var(--ease), box-shadow 0.2s;
+      user-select: none;
+    }
+
+    .opt label:hover {
+      border-color: var(--pink-300);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px -10px rgba(220, 35, 104, 0.45);
+    }
+
+    .opt label:active { transform: scale(0.98); }
+
+    .opt label { justify-content: center; gap: 6px; min-height: 48px; padding: 11px 14px; }
+
+    .opt-hint { font-weight: 400; color: var(--ink-3); font-size: 0.84rem; }
+    .opt input:checked + label .opt-hint { color: var(--pink-600); }
+
+    .age-cat {
+      align-self: center;
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: var(--pink-700);
+      background: var(--pink-50);
+      padding: 6px 12px;
+      border-radius: 999px;
+      opacity: 0;
+      transform: translateX(-6px);
+      transition: opacity 0.25s var(--ease), transform 0.25s var(--ease);
+    }
+
+    .age-cat.show { opacity: 1; transform: none; }
+
+    .step { padding-bottom: 22px; }
+    .step-title { margin-bottom: 10px; }
+    .combo-trigger { min-height: 50px; }
+
+    .opt-ico {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: var(--pink-50);
+      color: var(--pink-600);
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.9rem;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .opt-text small {
+      display: block;
+      font-size: 0.76rem;
+      font-weight: 400;
+      color: var(--ink-3);
+      margin-top: 1px;
+    }
+
+    .opt input:checked + label {
+      border-color: var(--pink-500);
+      background: var(--pink-50);
+      color: var(--pink-800);
+      font-weight: 600;
+      box-shadow: 0 0 0 3px var(--pink-100);
+    }
+
+    .opt input:checked + label .opt-ico {
+      background: var(--pink-500);
+      color: #fff;
+    }
+
+    .opt input:focus-visible + label { outline: 2px solid var(--pink-500); outline-offset: 2px; }
+
+    .freq-dots {
+      display: flex;
+      gap: 3px;
+    }
+
+    .freq-dots i {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--pink-200);
+    }
+
+    .freq-dots i.f { background: var(--pink-500); }
+    .opt input:checked + label .freq-dots i { background: rgba(255, 255, 255, 0.45); }
+    .opt input:checked + label .freq-dots i.f { background: #fff; }
+
+    /* Combobox */
+    .combo { position: relative; }
+
+    .combo-trigger {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      min-height: 56px;
+      border: 1.5px solid var(--line-2);
+      border-radius: 14px;
+      background: #fff;
+      cursor: pointer;
+      text-align: left;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .combo-trigger:hover { border-color: var(--pink-300); }
+
+    .combo.open .combo-trigger,
+    .combo-trigger:focus-visible {
+      outline: none;
+      border-color: var(--pink-500);
+      box-shadow: 0 0 0 4px var(--pink-100);
+    }
+
+    .combo.has-value .combo-trigger { background: var(--pink-50); border-color: var(--pink-400); }
+
+    .code-chip {
+      min-width: 38px;
+      height: 32px;
+      padding: 0 8px;
+      border-radius: 9px;
+      background: var(--pink-100);
+      color: var(--pink-700);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.86rem;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+
+    .combo.has-value .combo-trigger .code-chip { background: var(--pink-500); color: #fff; }
+
+    .combo-value { flex: 1; min-width: 0; }
+
+    .combo-value b {
+      display: block;
+      font-weight: 600;
+      font-size: 0.93rem;
+      color: var(--ink);
+    }
+
+    .combo-value span {
+      display: block;
+      font-size: 0.77rem;
+      color: var(--ink-3);
+    }
+
+    .combo-value.placeholder b { color: var(--ink-3); font-weight: 500; }
+
+    .combo-chev {
+      color: var(--pink-600);
+      transition: transform 0.25s var(--ease);
+      flex-shrink: 0;
+    }
+
+    .combo.open .combo-chev { transform: rotate(180deg); }
+
+    .combo-pop {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: calc(100% + 8px);
+      background: #fff;
+      border: 1px solid var(--line-2);
+      border-radius: 16px;
+      box-shadow: 0 24px 48px -16px rgba(138, 17, 65, 0.3);
+      z-index: 30;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(-6px) scale(0.98);
+      transform-origin: top center;
+      pointer-events: none;
+      transition: opacity 0.18s var(--ease), transform 0.22s var(--ease);
+    }
+
+    .combo.open .combo-pop {
+      opacity: 1;
+      transform: none;
+      pointer-events: auto;
+    }
+
+    .combo-search {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      color: var(--ink-3);
+    }
+
+    .combo-search input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 0.9rem;
+      color: var(--ink);
+      background: transparent;
+    }
+
+    .combo-list {
+      list-style: none;
+      margin: 0;
+      padding: 6px;
+      max-height: 290px;
+      overflow-y: auto;
+    }
+
+    .combo-opt {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 9px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+
+    .combo-opt .code-chip { background: var(--pink-50); }
+
+    .combo-opt.active { background: var(--pink-50); }
+    .combo-opt.active .code-chip { background: var(--pink-100); }
+
+    .combo-opt[aria-selected="true"] .code-chip { background: var(--pink-500); color: #fff; }
+    .combo-opt[aria-selected="true"] b { color: var(--pink-700); }
+
+    .combo-opt b { display: block; font-size: 0.9rem; font-weight: 600; }
+    .combo-opt span { display: block; font-size: 0.76rem; color: var(--ink-3); }
+
+    .combo-opt .tick { margin-left: auto; color: var(--pink-500); opacity: 0; }
+    .combo-opt[aria-selected="true"] .tick { opacity: 1; }
+
+    .combo-empty {
+      display: none;
+      padding: 18px;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--ink-3);
+    }
+
+    .form-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px dashed var(--line-2);
+    }
+
+    .form-foot p { margin: 0; font-size: 0.82rem; color: var(--ink-3); }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1.5px solid var(--line-2);
+      background: #fff;
+      color: var(--pink-700);
+      font-weight: 600;
+      font-size: 0.84rem;
+      padding: 9px 14px;
+      border-radius: 11px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .btn-ghost:hover { border-color: var(--pink-300); background: var(--pink-50); }
+    .btn-ghost svg { transition: transform 0.4s var(--ease); }
+    .btn-ghost:hover svg { transform: rotate(-120deg); }
+
+    /* ============ RESULT ============ */
+    .side { display: flex; flex-direction: column; gap: 20px; }
+
+    .result {
+      padding: 24px 24px 22px;
+      overflow: hidden;
+      position: relative;
+      transition: background 0.4s var(--ease);
+    }
+
+    .result::before {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; top: 0;
+      height: 5px;
+      background: var(--pink-300);
+      transition: background 0.4s;
+    }
+
+    .result.low::before { background: var(--low); }
+    .result.med::before { background: var(--med); }
+    .result.high::before { background: var(--high); }
+
+    .result-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .result-top h3 {
+      font-family: var(--font-display);
+      font-size: 1.12rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .status-chip {
+      font-size: 0.74rem;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: var(--pink-50);
+      color: var(--pink-700);
+      border: 1px solid var(--pink-200);
+      transition: all 0.3s;
+    }
+
+    .result.low .status-chip { background: var(--low-soft); color: var(--low); border-color: transparent; }
+    .result.med .status-chip { background: var(--med-soft); color: #a85f00; border-color: transparent; }
+    .result.high .status-chip { background: var(--high-soft); color: var(--high); border-color: transparent; }
+
+    .gauge-box {
+      position: relative;
+      margin: 14px auto 0;
+      max-width: 300px;
+    }
+
+    .gauge { width: 100%; display: block; overflow: visible; }
+
+    .g-track { fill: none; stroke: var(--pink-50); stroke-width: 16; }
+
+    .g-seg {
+      fill: none;
+      stroke-width: 16;
+      opacity: 0.22;
+      transition: opacity 0.4s var(--ease);
+    }
+
+    .g-seg.low { stroke: var(--low); }
+    .g-seg.med { stroke: var(--med); }
+    .g-seg.high { stroke: var(--high); }
+
+    .result:not(.ready) .g-seg { opacity: 0.12; }
+    .result.low .g-seg.low,
+    .result.med .g-seg.med,
+    .result.high .g-seg.high { opacity: 1; }
+
+    .g-tick { font-family: var(--font-body); font-size: 7.5px; fill: var(--ink-3); }
+
+    .needle {
+      transform-box: view-box;
+      transform-origin: 100px 100px;
+      transform: rotate(-90deg);
+      transition: transform 0.9s var(--spring);
+    }
+
+    .needle line { stroke: var(--ink); stroke-width: 3.5; stroke-linecap: round; }
+    .needle circle.hub { fill: var(--ink); }
+    .needle circle.hub-in { fill: #fff; }
+    .result:not(.ready) .needle line, .result:not(.ready) .needle circle.hub { fill: var(--pink-200); stroke: var(--pink-200); }
+
+    .score-line {
+      text-align: center;
+      margin-top: 6px;
+    }
+
+    .score-big {
+      font-family: var(--font-display);
+      font-size: 3.2rem;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.03em;
+      font-variant-numeric: tabular-nums;
+      color: var(--ink);
+    }
+
+    .score-big small {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--ink-3);
+      letter-spacing: 0;
+    }
+
+    .result:not(.ready) .score-big { color: var(--pink-200); }
+
+    .category {
+      font-family: var(--font-display);
+      font-size: 1.45rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 6px 0 0;
+      color: var(--ink);
+    }
+
+    .result.low .category { color: var(--low); }
+    .result.med .category { color: #b26500; }
+    .result.high .category { color: var(--high); }
+
+    .pending-box { margin-top: 16px; text-align: center; }
+
+    .pending-box p { margin: 0 0 12px; font-size: 0.88rem; color: var(--ink-2); }
+
+    .missing {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .missing button {
+      border: 1px dashed var(--pink-300);
+      background: #fff;
+      color: var(--pink-700);
+      font-size: 0.77rem;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      animation: rise 0.35s var(--ease) both;
+    }
+
+    .missing button:hover { background: var(--pink-50); border-style: solid; }
+
+    .rec-box {
+      display: none;
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: var(--pink-50);
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--ink-2);
+      animation: rise 0.45s var(--ease) both;
+    }
+
+    .result.low .rec-box { background: var(--low-soft); }
+    .result.med .rec-box { background: var(--med-soft); }
+    .result.high .rec-box { background: var(--high-soft); }
+
+    .rec-box strong {
+      display: block;
+      font-size: 0.74rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+
+    .result.ready .rec-box { display: block; }
+    .result.ready .pending-box { display: none; }
+
+    /* Recap */
+    .recap { padding: 22px 24px; }
+
+    .recap-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .recap-head h3 {
+      font-family: var(--font-display);
+      font-size: 1.12rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .recap-head span { font-size: 0.78rem; color: var(--ink-3); }
+
+    .recap-list { list-style: none; margin: 0; padding: 0; }
+
+    .recap-item {
+      display: grid;
+      grid-template-columns: 22px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 6px;
+      border-bottom: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 0.86rem;
+      transition: background 0.5s var(--ease);
+    }
+
+    .recap-item:last-child { border-bottom: none; }
+    .recap-item.flash { background: var(--pink-50); transition: none; }
+
+    .recap-check {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1.5px solid var(--line-2);
+      display: grid;
+      place-items: center;
+      color: #fff;
+      transition: background 0.25s, border-color 0.25s;
+    }
+
+    .recap-check svg { opacity: 0; transform: scale(0.4); transition: all 0.3s var(--spring); }
+
+    .recap-item.filled .recap-check { background: var(--pink-500); border-color: var(--pink-500); }
+    .recap-item.filled .recap-check svg { opacity: 1; transform: none; }
+
+    .recap-key { color: var(--ink-3); }
+
+    .recap-val {
+      text-align: right;
+      font-weight: 600;
+      color: var(--ink);
+      max-width: 210px;
+    }
+
+    .recap-item:not(.filled) .recap-val { color: var(--pink-300); font-weight: 400; }
+
+    .recap-total {
+      margin-top: 12px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: var(--ink);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .recap-total span { font-size: 0.8rem; color: rgba(255,255,255,0.7); }
+    .recap-total b { font-family: var(--font-display); font-size: 1rem; font-weight: 700; text-align: right; }
+
+    .recap-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .copy-ok {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--low);
+      opacity: 0;
+      transform: translateX(6px);
+      transition: all 0.25s var(--ease);
+    }
+
+    .copy-ok.show { opacity: 1; transform: none; }
+
+    .btn-main {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: none;
+      background: var(--pink-500);
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.86rem;
+      padding: 11px 18px;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 8px 18px -8px rgba(245, 61, 125, 0.7);
+      transition: background 0.2s, transform 0.2s var(--ease), box-shadow 0.2s, opacity 0.2s;
+    }
+
+    .btn-main:hover:not(:disabled) { background: var(--pink-600); transform: translateY(-2px); }
+    .btn-main:active:not(:disabled) { transform: scale(0.97); }
+    .btn-main:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+
+    /* ============ EDUKASI ============ */
+    .edu {
+      margin-top: 72px;
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+    }
+
+    .edu.in { opacity: 1; transform: none; }
+
+    .edu-head {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-bottom: 26px;
+    }
+
+    @media (min-width: 900px) {
+      .edu-head { grid-template-columns: 1fr 1fr; align-items: end; gap: 40px; }
+    }
+
+    .eyebrow {
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--pink-600);
+      margin: 0 0 8px;
+    }
+
+    .edu-head h2 {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 3vw, 2.3rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin: 0;
+    }
+
+    .edu-head p { margin: 0; color: var(--ink-2); font-size: 0.94rem; }
+
+    .edu-shell {
+      display: grid;
+      grid-template-columns: 1fr;
+      overflow: hidden;
+    }
+
+    @media (min-width: 900px) {
+      .edu-shell { grid-template-columns: 300px 1fr; }
+    }
+
+    .edu-tabs {
+      display: flex;
+      gap: 6px;
+      padding: 14px;
+      overflow-x: auto;
+      background: var(--pink-50);
+      border-bottom: 1px solid var(--line);
+      scrollbar-width: none;
+    }
+
+    .edu-tabs::-webkit-scrollbar { display: none; }
+
+    @media (min-width: 900px) {
+      .edu-tabs {
+        flex-direction: column;
+        border-bottom: none;
+        border-right: 1px solid var(--line);
+        padding: 18px;
+      }
+    }
+
+    .edu-tab {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: none;
+      background: transparent;
+      text-align: left;
+      padding: 12px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      color: var(--ink-2);
+      font-size: 0.88rem;
+      font-weight: 500;
+      white-space: nowrap;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    @media (min-width: 900px) { .edu-tab { white-space: normal; } }
+
+    .edu-tab:hover { background: rgba(255, 255, 255, 0.8); color: var(--ink); }
+
+    .edu-tab .n {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid var(--line-2);
+      display: grid;
+      place-items: center;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.78rem;
+      color: var(--pink-600);
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .edu-tab[aria-selected="true"] {
+      background: #fff;
+      color: var(--ink);
+      font-weight: 600;
+      box-shadow: 0 4px 14px -8px rgba(180, 21, 82, 0.35);
+    }
+
+    .edu-tab[aria-selected="true"] .n { background: var(--pink-500); border-color: var(--pink-500); color: #fff; }
+
+    .edu-panels { padding: 30px 34px 34px; min-height: 360px; }
+
+    .edu-panel { display: none; }
+    .edu-panel.active { display: block; animation: rise 0.45s var(--ease) both; }
+
+    .edu-panel h3 {
+      font-family: var(--font-display);
+      font-size: 1.45rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 0 0 16px;
+    }
+
+    .edu-panel p, .edu-panel li {
+      font-size: 0.95rem;
+      line-height: 1.75;
+      color: var(--ink-2);
+    }
+
+    .edu-panel p { margin: 0 0 14px; max-width: 72ch; }
+
+    .point-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+
+    .point-list li {
+      padding: 16px 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      transition: border-color 0.2s, transform 0.25s var(--ease);
+    }
+
+    .point-list li:hover { border-color: var(--pink-300); transform: translateX(4px); }
+
+    .point-list li strong {
+      display: block;
+      color: var(--ink);
+      font-size: 0.98rem;
+      margin-bottom: 4px;
+    }
+
+    .sop { display: grid; gap: 12px; }
+
+    .sop-card {
+      padding: 18px 20px;
+      border-radius: 16px;
+      border-left: 5px solid;
+    }
+
+    .sop-card.low { background: var(--low-soft); border-color: var(--low); }
+    .sop-card.med { background: var(--med-soft); border-color: var(--med); }
+    .sop-card.high { background: var(--high-soft); border-color: var(--high); }
+
+    .sop-card h4 {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin: 0 0 6px;
+    }
+
+    .sop-card.low h4 { color: var(--low); }
+    .sop-card.med h4 { color: #a85f00; }
+    .sop-card.high h4 { color: var(--high); }
+
+    .sop-card p { margin: 0; color: var(--ink); }
+
+    .refs { list-style: none; margin: 0; padding: 0; counter-reset: r; display: grid; gap: 12px; }
+
+    .refs li {
+      counter-increment: r;
+      display: grid;
+      grid-template-columns: 30px 1fr;
+      gap: 10px;
+      font-size: 0.9rem;
+    }
+
+    .refs li::before {
+      content: counter(r, decimal-leading-zero);
+      font-family: var(--font-display);
+      font-weight: 700;
+      color: var(--pink-500);
+    }
+
+    footer {
+      margin-top: 56px;
+      padding: 24px 0 110px;
+      border-top: 1px solid var(--line);
+      font-size: 0.8rem;
+      color: var(--ink-3);
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    @media (min-width: 960px) { footer { padding-bottom: 32px; } }
+
+    /* ============ MOBILE BAR ============ */
+    .mbar {
+      position: fixed;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      z-index: 40;
+      background: var(--ink);
+      color: #fff;
+      border-radius: 18px;
+      padding: 10px 10px 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 16px 40px -12px rgba(53, 9, 29, 0.55);
+    }
+
+    @media (min-width: 960px) { .mbar { display: none; } }
+
+    .mbar-info { flex: 1; min-width: 0; }
+    .mbar-info b { display: block; font-family: var(--font-display); font-size: 0.98rem; }
+    .mbar-info span { font-size: 0.76rem; color: rgba(255,255,255,0.7); }
+
+    .mbar button {
+      border: none;
+      background: var(--pink-500);
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.84rem;
+      padding: 10px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    @media (max-width: 640px) {
+      .wrap { padding: 0 16px; }
+      .form-card { padding: 22px 18px 20px; }
+      .result, .recap { padding: 20px 18px; }
+      .seg.c3 { grid-template-columns: 1fr; }
+      .edu-panels { padding: 22px 18px 26px; }
+      .hero-stat b { font-size: 1.35rem; }
+      .step { grid-template-columns: 30px 1fr; gap: 12px; }
+      .marker { width: 30px; height: 30px; }
+      .step::before, .step::after { left: 14px; top: 34px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+      .edu { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ============ HERO ============ -->
+  <header class="hero">
+    <svg class="ecg" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true">
+      <path class="ecg-base" d="M0 70 H150 L165 62 L180 70 H215 L230 18 L248 108 L262 70 H300 L318 58 L338 70 H560 L575 62 L590 70 H625 L640 18 L658 108 L672 70 H710 L728 58 L748 70 H970 L985 62 L1000 70 H1035 L1050 18 L1068 108 L1082 70 H1120 L1138 58 L1158 70 H1200"/>
+      <path class="ecg-pulse" d="M0 70 H150 L165 62 L180 70 H215 L230 18 L248 108 L262 70 H300 L318 58 L338 70 H560 L575 62 L590 70 H625 L640 18 L658 108 L672 70 H710 L728 58 L748 70 H970 L985 62 L1000 70 H1035 L1050 18 L1068 108 L1082 70 H1120 L1138 58 L1158 70 H1200"/>
+    </svg>
+
+    <div class="wrap">
+      <nav class="nav">
+        <div class="logo">
+          <span class="logo-mark" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          </span>
+          DIALYSENSE
+        </div>
+        <div class="nav-meta"><span class="live-dot"></span>Skrining Risiko Hemodinamik</div>
+      </nav>
+
+      <div class="hero-body">
+        <div>
+          <span class="hero-kicker">Pengkajian Klinis Hemodialisis</span>
+          <h1>Kenali risiko hemodinamik pasien <em>lebih awal.</em></h1>
+          <p class="hero-lead">Isi enam parameter klinis di bawah. Penilaian risiko kardiovaskular, rekomendasi tindak lanjut, dan rekapitulasi data tersusun secara otomatis.</p>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat"><b>6</b><span>Parameter klinis</span></div>
+          <div class="hero-stat"><b>3</b><span>Kategori risiko</span></div>
+          <div class="hero-stat"><b>&lt;1 mnt</b><span>Waktu pengisian</span></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+    <div class="wrap">
+      <div class="grid">
+        <!-- FORM -->
+        <section class="card form-card reveal" aria-labelledby="form-title">
+          <div class="card-head">
+            <div>
+              <h2 id="form-title">Parameter Prediktor</h2>
+              <p>Lengkapi sesuai kondisi aktual pasien saat pengkajian.</p>
+            </div>
+            <div class="ring-progress" aria-hidden="true">
+              <svg width="54" height="54" viewBox="0 0 54 54">
+                <circle class="ring-track" cx="27" cy="27" r="22"/>
+                <circle id="ring-fill" class="ring-fill" cx="27" cy="27" r="22"/>
+              </svg>
+              <div id="ring-label" class="ring-label">0/6</div>
+            </div>
+          </div>
+
+          <form id="risk-form" novalidate onsubmit="return false">
+            <ol class="steps">
+              <!-- 1 Usia -->
+              <li class="step" id="step-age">
+                <div class="marker"><span>1</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="step-body">
+                  <div class="step-title">
+                    <label for="age-input">Usia Pasien</label>
+                  </div>
+                  <div class="age-row">
+                    <div class="num-field" id="age-field">
+                      <button type="button" class="num-btn" data-step="-1" aria-label="Kurangi usia">−</button>
+                      <div class="num-input-wrap">
+                        <input type="number" id="age-input" min="1" max="120" step="1" inputmode="numeric" placeholder="00" autocomplete="off">
+                        <span>thn</span>
+                      </div>
+                      <button type="button" class="num-btn" data-step="1" aria-label="Tambah usia">+</button>
+                    </div>
+                    <span id="age-cat" class="age-cat" aria-live="polite"></span>
+                  </div>
+                  <div id="age-msg" class="age-msg">Usia harus berupa bilangan bulat antara 1 dan 120 tahun.</div>
+                </div>
+              </li>
+
+              <!-- 2 Jenis Kelamin -->
+              <li class="step" id="step-gender">
+                <div class="marker"><span>2</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="step-body">
+                  <div class="step-title"><span class="t">Jenis Kelamin</span></div>
+                  <div class="seg c2" role="radiogroup" aria-label="Jenis Kelamin">
+                    <div class="opt">
+                      <input type="radio" id="g-f" name="gender" value="1" data-label="Perempuan">
+                      <label for="g-f">Perempuan</label>
+                    </div>
+                    <div class="opt">
+                      <input type="radio" id="g-m" name="gender" value="2" data-label="Laki-laki">
+                      <label for="g-m">Laki-laki</label>
+                    </div>
+                  </div>
+                </div>
+              </li>
+
+              <!-- 3 Jarak -->
+              <li class="step" id="step-distance">
+                <div class="marker"><span>3</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="step-body">
+                  <div class="step-title"><span class="t">Jarak ke Fasilitas Dialisis</span></div>
+                  <div class="seg c2" role="radiogroup" aria-label="Jarak Tempat Tinggal">
+                    <div class="opt">
+                      <input type="radio" id="d-n" name="distance" value="1" data-label="≤ 15 km">
+                      <label for="d-n">&le; 15 km</label>
+                    </div>
+                    <div class="opt">
+                      <input type="radio" id="d-f" name="distance" value="2" data-label="> 15 km">
+                      <label for="d-f">&gt; 15 km</label>
+                    </div>
+                  </div>
+                </div>
+              </li>
+
+              <!-- 4 Etiologi -->
+              <li class="step" id="step-etiology">
+                <div class="marker"><span>4</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="step-body">
+                  <div class="step-title"><span class="t" id="etio-label">Etiologi Penyakit Ginjal (IRR)</span></div>
+                  <div class="combo" id="combo">
+                    <button type="button" class="combo-trigger" id="combo-trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="etio-label">
+                      <span class="code-chip" id="combo-code">E–</span>
+                      <span class="combo-value placeholder" id="combo-value">
+                        <b>Pilih etiologi</b>
+                      </span>
+                      <svg class="combo-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <div class="combo-pop">
+                      <div class="combo-search">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+                        <input type="text" id="combo-search" placeholder="Ketik kode atau nama, mis. E4 / hipertensi" autocomplete="off" aria-controls="combo-list">
+                      </div>
+                      <ul class="combo-list" id="combo-list" role="listbox" aria-labelledby="etio-label"></ul>
+                      <div class="combo-empty" id="combo-empty">Etiologi tidak ditemukan.</div>
+                    </div>
+                  </div>
+                </div>
+              </li>
+
+              <!-- 5 Frekuensi -->
+              <li class="step" id="step-frequency">
+                <div class="marker"><span>5</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="step-body">
+                  <div class="step-title"><span class="t">Frekuensi Hemodialisis per Minggu</span></div>
+                  <div class="seg c3" role="radiogroup" aria-label="Frekuensi Hemodialisis">
+                    <div class="opt">
+                      <input type="radio" id="f-1" name="frequency" value="1" data-label="1x / minggu">
+                      <label for="f-1">1x</label>
+                    </div>
+                    <div class="opt">
+                      <input type="radio" id="f-2" name="frequency" value="2" data-label="2x / minggu">
+                      <label for="f-2">2x</label>
+                    </div>
+                    <div class="opt">
+                      <input type="radio" id="f-3" name="frequency" value="3" data-label="3x / minggu">
+                      <label for="f-3">3x</label>
+                    </div>
+                  </div>
+                </div>
+              </li>
+
+              <!-- 6 IDWG -->
+              <li class="step" id="step-idwg">
+                <div class="marker"><span>6</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="step-body">
+                  <div class="step-title"><span class="t">IDWG (dari Berat Badan Kering)</span></div>
+                  <div class="seg c2" role="radiogroup" aria-label="IDWG">
+                    <div class="opt">
+                      <input type="radio" id="i-l" name="idwg" value="1" data-label="Rendah (< 4% BB kering)">
+                      <label for="i-l">Rendah <span class="opt-hint">&lt; 4%</span></label>
+                    </div>
+                    <div class="opt">
+                      <input type="radio" id="i-h" name="idwg" value="2" data-label="Tinggi (≥ 4% BB kering)">
+                      <label for="i-h">Tinggi <span class="opt-hint">&ge; 4%</span></label>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            </ol>
+          </form>
+
+          <div class="form-foot">
+            <p>Hasil diperbarui secara langsung setiap kali data diubah.</p>
+            <button type="button" class="btn-ghost" id="reset-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+              Atur ulang
+            </button>
+          </div>
+        </section>
+
+        <!-- SIDE -->
+        <aside class="side">
+          <section class="card result reveal d1" id="result" aria-live="polite">
+            <div class="result-top">
+              <h3>Hasil Penilaian</h3>
+              <span class="status-chip" id="status-chip">Menunggu data</span>
+            </div>
+
+            <div class="gauge-box">
+              <svg class="gauge" viewBox="0 0 200 116" aria-hidden="true">
+                <path class="g-track" id="g-track"/>
+                <path class="g-seg low" id="g-low"/>
+                <path class="g-seg med" id="g-med"/>
+                <path class="g-seg high" id="g-high"/>
+                <text class="g-tick" x="14" y="114" text-anchor="middle">7</text>
+                <text class="g-tick" x="186" y="114" text-anchor="middle">15</text>
+                <g class="needle" id="needle">
+                  <line x1="100" y1="100" x2="100" y2="34"/>
+                  <circle class="hub" cx="100" cy="100" r="8"/>
+                  <circle class="hub-in" cx="100" cy="100" r="3"/>
+                </g>
+              </svg>
+            </div>
+
+            <div class="score-line">
+              <div class="score-big"><span id="score">–</span><small>/15</small></div>
+              <p class="category" id="category">Belum dinilai</p>
+            </div>
+
+            <div class="pending-box">
+              <p id="pending-text">Lengkapi parameter berikut untuk melihat hasil:</p>
+              <div class="missing" id="missing"></div>
+            </div>
+
+            <div class="rec-box">
+              <strong>Rekomendasi Tindak Lanjut</strong>
+              <span id="recommendation"></span>
+            </div>
+          </section>
+
+          <section class="card recap reveal d2" aria-labelledby="recap-title">
+            <div class="recap-head">
+              <h3 id="recap-title">Rekapitulasi Data</h3>
+              <span id="recap-date"></span>
+            </div>
+            <ul class="recap-list">
+              <li class="recap-item" data-key="age"><span class="recap-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="recap-key">Usia</span><span class="recap-val">—</span></li>
+              <li class="recap-item" data-key="gender"><span class="recap-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="recap-key">Jenis Kelamin</span><span class="recap-val">—</span></li>
+              <li class="recap-item" data-key="distance"><span class="recap-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="recap-key">Jarak Tempat Tinggal</span><span class="recap-val">—</span></li>
+              <li class="recap-item" data-key="etiology"><span class="recap-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="recap-key">Etiologi (IRR)</span><span class="recap-val">—</span></li>
+              <li class="recap-item" data-key="frequency"><span class="recap-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="recap-key">Frekuensi HD</span><span class="recap-val">—</span></li>
+              <li class="recap-item" data-key="idwg"><span class="recap-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="recap-key">IDWG</span><span class="recap-val">—</span></li>
+            </ul>
+            <div class="recap-total">
+              <span>Kesimpulan</span>
+              <b id="recap-summary">Belum lengkap</b>
+            </div>
+            <div class="recap-actions">
+              <span class="copy-ok" id="copy-ok">Tersalin ke clipboard</span>
+              <button type="button" class="btn-main" id="copy-btn" disabled>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                Salin Rekapitulasi
+              </button>
+            </div>
+          </section>
+        </aside>
+      </div>
+
+      <!-- ============ EDUKASI ============ -->
+      <section class="edu" id="edu" aria-labelledby="edu-title">
+        <div class="edu-head">
+          <div>
+            <p class="eyebrow">Materi Edukasi Klinis</p>
+            <h2 id="edu-title">Manajemen Risiko Hemodinamik &amp; Kardiovaskular pada Pasien Hemodialisis</h2>
+          </div>
+          <p>Landasan ilmiah di balik setiap parameter penilaian, mekanisme patofisiologi, serta panduan tindak lanjut sesuai kategori risiko.</p>
+        </div>
+
+        <div class="card edu-shell">
+          <div class="edu-tabs" role="tablist" aria-label="Materi edukasi">
+            <button class="edu-tab" role="tab" aria-selected="true" aria-controls="p1" id="t1"><span class="n">01</span>Latar Belakang Klinis</button>
+            <button class="edu-tab" role="tab" aria-selected="false" aria-controls="p2" id="t2"><span class="n">02</span>Analisis Prediktor Risiko</button>
+            <button class="edu-tab" role="tab" aria-selected="false" aria-controls="p3" id="t3"><span class="n">03</span>Patofisiologi dan Adekuasi Dialisis</button>
+            <button class="edu-tab" role="tab" aria-selected="false" aria-controls="p4" id="t4"><span class="n">04</span>Interpretasi Skor &amp; Tindak Lanjut</button>
+            <button class="edu-tab" role="tab" aria-selected="false" aria-controls="p5" id="t5"><span class="n">05</span>Referensi Valid</button>
+          </div>
+
+          <div class="edu-panels">
+            <div class="edu-panel active" role="tabpanel" id="p1" aria-labelledby="t1">
+              <h3>Latar Belakang Klinis</h3>
+              <p>Penyakit Ginjal Kronis (PGK) stadium akhir yang menjalani terapi hemodialisis rutin memiliki risiko mortalitas kardiovaskular 10 hingga 20 kali lipat lebih tinggi dibandingkan populasi umum. Kondisi penyulit seperti hipertrofi ventrikel kiri (LVH), disfungsi diastolik, gagal jantung kongestif, dan aritmia mematikan sering dipicu oleh dua faktor utama: beban volume berlebih (<em>volume overload</em>) dan instabilitas hemodinamik intra-dialitik.</p>
+              <p>Kalkulator risiko klinis diperlukan untuk melakukan skrining cepat terhadap faktor sosiodemografi dan profil klinis guna mendeteksi potensi perburukan hemodinamik sedini mungkin. Melalui skrining ini, tenaga kesehatan dapat melakukan intervensi preventif sebelum komplikasi seperti hipotensi intradialitik (IDH) atau krisis hipertensi terjadi di ruang hemodialisis.</p>
+            </div>
+
+            <div class="edu-panel" role="tabpanel" id="p2" aria-labelledby="t2">
+              <h3>Analisis Prediktor Risiko (Berdasarkan Parameter Skoring)</h3>
+              <ul class="point-list">
+                <li><strong>Kelompok Usia dan Jenis Kelamin</strong>Pasien lansia mengalami peningkatan kekakuan vaskular (<em>arterial stiffness</em>) dan penurunan respons baroreseptor, sehingga sangat rentan terhadap perubahan volume intravaskular secara tiba-tiba. Secara epidemiologis, pasien laki-laki sering kali memiliki insiden kejadian kardiovaskular mayor yang lebih tinggi dibandingkan perempuan pre-menopause, meskipun risiko ini menjadi setara pasca-menopause.</li>
+                <li><strong>Jarak Tempat Tinggal dari Fasilitas Dialisis</strong>Jarak tempuh &gt; 15 km berkaitan erat dengan kelelahan pasca-dialisis (<em>post-dialysis fatigue</em>) dan hambatan aksesibilitas. Jarak yang jauh terbukti secara signifikan menurunkan tingkat kepatuhan pasien terhadap jadwal dialisis rutin, yang pada akhirnya memicu akumulasi cairan dan toksin uremik berlebih.</li>
+                <li><strong>Etiologi Penyakit Ginjal (IRR)</strong>Berdasarkan data <em>Indonesian Renal Registry</em> (IRR), Nefropati Diabetik (E2) dan Nefropati Hipertensi (E4) merupakan etiologi terbanyak yang memberikan efek sistemik berupa disfungsi endotel kronis, peradangan pembuluh darah persisten, dan aterosklerosis yang mempercepat kerusakan mikrovaskular serta makrovaskular.</li>
+                <li><strong>Frekuensi Hemodialisis</strong>Perubahan beban volume yang drastis dan besaran <em>ultrafiltration</em> (UF) <em>rate</em> yang tidak disesuaikan dengan toleransi kardiovaskular dapat memicu regangan miokard akut dan disritmia. Oleh karena itu, pasien dengan frekuensi dan durasi yang tidak ideal memerlukan manajemen cairan intra-dialitik yang sangat ketat.</li>
+                <li><strong>Interdialytic Weight Gain (IDWG)</strong>IDWG merupakan parameter peningkatan berat badan antara dua sesi dialisis yang merepresentasikan retensi cairan. IDWG yang tinggi (&ge; 4% dari berat badan kering) sangat berkorelasi dengan peregangan dinding miokardium, pelepasan sitokin pro-inflamasi, serta fluktuasi <em>marker</em> inflamasi hematologi sistemik (seperti NLR, PLR, dan LMR).</li>
+              </ul>
+            </div>
+
+            <div class="edu-panel" role="tabpanel" id="p3" aria-labelledby="t3">
+              <h3>Patofisiologi dan Adekuasi Dialisis</h3>
+              <ul class="point-list">
+                <li><strong>Mekanisme Jejas Kardiovaskular</strong>Penarikan cairan yang terlalu agresif (UF <em>rate</em> tinggi) untuk mencapai berat badan kering pada pasien dengan IDWG tinggi akan memicu hipoperfusi miokard transien (kardiomiopati <em>stunning</em>). Secara kronis, kondisi iskemia berulang ini memicu fibrosis miokard, penurunan fraksi ejeksi, dan gagal jantung.</li>
+                <li><strong>Korelasi Inflamasi dan Mortalitas</strong>Retensi cairan dan uremia persisten menginduksi stres oksidatif. <em>Marker</em> inflamasi berbasis hematologi dapat menjadi prediktor terhadap mortalitas pasien hemodialisis karena menggambarkan keseimbangan antara respons imun sistemik (inflamasi akibat uremia/kelebihan cairan) dan status regulasi imun pasien.</li>
+                <li><strong>Adekuasi Dialisis (Kt/V)</strong>Kualitas hidup dan kesintasan pasien sangat bergantung pada kemampuan mesin membersihkan toksin uremik (adekuasi). Target klinis Kt/V ideal adalah &ge; 1.2 per sesi (untuk jadwal HD 3x seminggu) atau &ge; 1.8 (untuk jadwal HD 2x seminggu). Evaluasi komprehensif hemodinamik harus selalu diselaraskan dengan pencapaian target adekuasi ini.</li>
+              </ul>
+            </div>
+
+            <div class="edu-panel" role="tabpanel" id="p4" aria-labelledby="t4">
+              <h3>Interpretasi Skor &amp; Tindak Lanjut Klinis (SOP Intervensi)</h3>
+              <div class="sop">
+                <div class="sop-card low">
+                  <h4>Skor &lt; 10 (Risiko Rendah)</h4>
+                  <p>Pasien berada dalam kondisi relatif stabil hemodinamik. Intervensi difokuskan pada edukasi preventif: restriksi cairan standar (500 ml ditambah <em>urine output</em> 24 jam terakhir) dan diet rendah natrium. Edukasi pasien untuk melakukan pemantauan berat badan kering (<em>dry weight</em>) secara mandiri di rumah.</p>
+                </div>
+                <div class="sop-card med">
+                  <h4>Skor 10 - 12 (Risiko Sedang)</h4>
+                  <p>Terdapat potensi instabilitas klinis yang tersembunyi. Perawat dan klinisi harus melakukan evaluasi ulang terhadap kepatuhan restriksi cairan pasien (mengukur tren IDWG harian), menghitung ulang kecukupan target Kt/V, dan melakukan peninjauan ulang regimen obat antihipertensi bersama farmasi klinis atau dokter ruangan.</p>
+                </div>
+                <div class="sop-card high">
+                  <h4>Skor 13 - 15 (Risiko Tinggi)</h4>
+                  <p>Kondisi kritis yang membutuhkan pengawasan hemodinamik ketat secara intra-dialitik (pemantauan tekanan darah tiap 15-30 menit selama proses HD berlangsung). Gunakan teknik <em>profiling</em> ultrafiltrasi (UF) atau <em>profiling</em> natrium pada mesin hemodialisis jika mesin mendukung. Kasus pada kategori ini <strong>wajib</strong> didokumentasikan di rekam medis, dilaporkan, dan dikonsultasikan segera ke DPJP (Dokter Penanggung Jawab Pelayanan) Ginjal Hipertensi untuk penyesuaian resep dialisis.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="edu-panel" role="tabpanel" id="p5" aria-labelledby="t5">
+              <h3>Referensi Valid</h3>
+              <ol class="refs">
+                <li><span>Kementerian Kesehatan Republik Indonesia. (2023). <em>Pedoman Nasional Pelayanan Kedokteran (PNPK) Tata Laksana Penyakit Ginjal Tahap Akhir</em>. Kementerian Kesehatan Republik Indonesia.</span></li>
+                <li><span>Kidney Disease: Improving Global Outcomes (KDIGO) CKD Work Group. (2012). KDIGO 2012 clinical practice guideline for the evaluation and management of chronic kidney disease. <em>Kidney International Supplements</em>, 3(1), 1-150.</span></li>
+                <li><span>Perhimpunan Nefrologi Indonesia (PERNEFRI). (2018). <em>Konsensus Dialisis di Indonesia</em>. Perhimpunan Nefrologi Indonesia.</span></li>
+                <li><span>Zoccali, C., &amp; Mallamaci, F. (2018). Cardiovascular risk in chronic kidney disease: The burden of volume overload. <em>Nature Reviews Nephrology</em>, 14(9), 567-580.</span></li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <span>DIALYSENSE — Skrining Risiko Hemodinamik &amp; Kardiovaskular</span>
+        <span>Alat bantu skrining klinis, bukan pengganti penilaian dokter.</span>
+      </footer>
+    </div>
+  </main>
+
+  <!-- Mobile summary bar -->
+  <div class="mbar" id="mbar">
+    <div class="mbar-info">
+      <b id="mbar-title">0 dari 6 terisi</b>
+      <span id="mbar-sub">Lengkapi parameter untuk melihat hasil</span>
+    </div>
+    <button type="button" id="mbar-btn">Lihat hasil</button>
+  </div>
+
+  <script>
+    /* ---------- Data ---------- */
+    const ETIOLOGIES = [
+      { code: 'E1', id: 'Glomerulopati Primer', en: 'Primary Glomerulopathy', w: 2 },
+      { code: 'E2', id: 'Nefropati Diabetik', en: 'Diabetic Nephropathy', w: 3 },
+      { code: 'E3', id: 'Nefritis Lupus', en: 'Lupus Nephritis', w: 2 },
+      { code: 'E4', id: 'Penyakit Ginjal Hipertensi', en: 'Hypertensive Kidney Disease', w: 3 },
+      { code: 'E5', id: 'Penyakit Ginjal Polikistik', en: 'Polycystic Kidney Disease', w: 2 },
+      { code: 'E6', id: 'Nefropati Asam Urat', en: 'Uric Acid Nephropathy', w: 2 },
+      { code: 'E7', id: 'Nefropati Obstruktif', en: 'Obstructive Nephropathy', w: 2 },
+      { code: 'E9', id: 'Lainnya', en: 'Others', w: 2 }
+    ];
+
+    const FIELD_NAMES = {
+      age: 'Usia', gender: 'Jenis Kelamin', distance: 'Jarak', etiology: 'Etiologi', frequency: 'Frekuensi HD', idwg: 'IDWG'
+    };
+
+    const $ = (s, r = document) => r.querySelector(s);
+    const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+    let selectedEtiology = null;
+    let shownScore = null;
+
+    /* ---------- Gauge geometry ---------- */
+    const CX = 100, CY = 100, R = 80;
+    const pt = f => {
+      const a = Math.PI * (1 - f);
+      return [CX + R * Math.cos(a), CY - R * Math.sin(a)];
+    };
+    const arc = (f1, f2) => {
+      const [x1, y1] = pt(f1), [x2, y2] = pt(f2);
+      return `M ${x1.toFixed(2)} ${y1.toFixed(2)} A ${R} ${R} 0 0 1 ${x2.toFixed(2)} ${y2.toFixed(2)}`;
+    };
+    const scoreToFrac = s => (s - 7) / 8;
+    const g = 0.012;
+    const b1 = scoreToFrac(9.5), b2 = scoreToFrac(12.5);
+    $('#g-track').setAttribute('d', arc(0, 1));
+    $('#g-low').setAttribute('d', arc(0, b1 - g));
+    $('#g-med').setAttribute('d', arc(b1 + g, b2 - g));
+    $('#g-high').setAttribute('d', arc(b2 + g, 1));
+
+    /* ---------- Age ---------- */
+    const ageInput = $('#age-input');
+
+    function classifyAge(raw) {
+      if (raw === '') return { valid: false, empty: true };
+      const n = Number(raw);
+      if (!Number.isInteger(n) || n < 1 || n > 120) return { valid: false, empty: false };
+      if (n >= 60) return { valid: true, age: n, cat: 'Lansia', band: 2, w: 3 };
+      if (n >= 18) return { valid: true, age: n, cat: 'Dewasa', band: 1, w: 2 };
+      return { valid: true, age: n, cat: 'Di bawah 18 tahun', band: 0, w: 1 };
+    }
+
+    $$('.num-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const cur = parseInt(ageInput.value, 10);
+        const step = parseInt(btn.dataset.step, 10);
+        let next = Number.isFinite(cur) ? cur + step : (step > 0 ? 18 : 60);
+        next = Math.min(120, Math.max(1, next));
+        ageInput.value = next;
+        update();
+      });
+    });
+
+    /* ---------- Combobox ---------- */
+    const combo = $('#combo');
+    const trigger = $('#combo-trigger');
+    const search = $('#combo-search');
+    const list = $('#combo-list');
+    const empty = $('#combo-empty');
+    let activeIdx = -1;
+
+    const tickSvg = '<svg class="tick" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+
+    list.innerHTML = ETIOLOGIES.map((e, i) => `
+      <li class="combo-opt" role="option" id="opt-${e.code}" data-i="${i}" aria-selected="false">
+        <span class="code-chip">${e.code}</span>
+        <span><b>${e.id}</b><span>${e.en}</span></span>
+        ${tickSvg}
+      </li>`).join('');
+
+    const visibleOpts = () => $$('.combo-opt', list).filter(o => o.style.display !== 'none');
+
+    function setActive(idx) {
+      const opts = visibleOpts();
+      opts.forEach(o => o.classList.remove('active'));
+      if (!opts.length) { activeIdx = -1; return; }
+      activeIdx = (idx + opts.length) % opts.length;
+      const el = opts[activeIdx];
+      el.classList.add('active');
+      el.scrollIntoView({ block: 'nearest' });
+      search.setAttribute('aria-activedescendant', el.id);
+    }
+
+    function filter(q) {
+      const term = q.trim().toLowerCase();
+      let count = 0;
+      $$('.combo-opt', list).forEach(o => {
+        const e = ETIOLOGIES[o.dataset.i];
+        const hit = !term || `${e.code} ${e.id} ${e.en}`.toLowerCase().includes(term);
+        o.style.display = hit ? '' : 'none';
+        if (hit) count++;
+      });
+      empty.style.display = count ? 'none' : 'block';
+      setActive(0);
+    }
+
+    function openCombo() {
+      combo.classList.add('open');
+      trigger.setAttribute('aria-expanded', 'true');
+      search.value = '';
+      filter('');
+      if (selectedEtiology) {
+        const idx = visibleOpts().findIndex(o => ETIOLOGIES[o.dataset.i] === selectedEtiology);
+        setActive(idx);
+      }
+      setTimeout(() => search.focus(), 30);
+    }
+
+    function closeCombo(focusTrigger) {
+      combo.classList.remove('open');
+      trigger.setAttribute('aria-expanded', 'false');
+      if (focusTrigger) trigger.focus();
+    }
+
+    function selectEtiology(e) {
+      selectedEtiology = e;
+      $$('.combo-opt', list).forEach(o => o.setAttribute('aria-selected', String(ETIOLOGIES[o.dataset.i] === e)));
+      combo.classList.add('has-value');
+      $('#combo-code').textContent = e.code;
+      const v = $('#combo-value');
+      v.classList.remove('placeholder');
+      v.innerHTML = `<b>${e.id}</b>`;
+      closeCombo(true);
+      update();
+    }
+
+    function resetCombo() {
+      selectedEtiology = null;
+      combo.classList.remove('has-value');
+      $('#combo-code').textContent = 'E–';
+      const v = $('#combo-value');
+      v.classList.add('placeholder');
+      v.innerHTML = '<b>Pilih etiologi</b>';
+      $$('.combo-opt', list).forEach(o => o.setAttribute('aria-selected', 'false'));
+    }
+
+    trigger.addEventListener('click', () => combo.classList.contains('open') ? closeCombo() : openCombo());
+    trigger.addEventListener('keydown', ev => {
+      if (['ArrowDown', 'Enter', ' '].includes(ev.key)) { ev.preventDefault(); openCombo(); }
+    });
+    search.addEventListener('input', () => filter(search.value));
+    search.addEventListener('keydown', ev => {
+      if (ev.key === 'ArrowDown') { ev.preventDefault(); setActive(activeIdx + 1); }
+      else if (ev.key === 'ArrowUp') { ev.preventDefault(); setActive(activeIdx - 1); }
+      else if (ev.key === 'Enter') {
+        ev.preventDefault();
+        const el = visibleOpts()[activeIdx];
+        if (el) selectEtiology(ETIOLOGIES[el.dataset.i]);
+      } else if (ev.key === 'Escape') { closeCombo(true); }
+      else if (ev.key === 'Tab') { closeCombo(); }
+    });
+    list.addEventListener('mousemove', ev => {
+      const el = ev.target.closest('.combo-opt');
+      if (el) setActive(visibleOpts().indexOf(el));
+    });
+    list.addEventListener('click', ev => {
+      const el = ev.target.closest('.combo-opt');
+      if (el) selectEtiology(ETIOLOGIES[el.dataset.i]);
+    });
+    document.addEventListener('click', ev => {
+      if (!combo.contains(ev.target)) closeCombo();
+    });
+
+    /* ---------- Helpers ---------- */
+    const radio = name => {
+      const el = $(`input[name="${name}"]:checked`);
+      return el ? { w: parseInt(el.value, 10), label: el.dataset.label } : null;
+    };
+
+    function setRecap(key, text) {
+      const item = $(`.recap-item[data-key="${key}"]`);
+      const val = $('.recap-val', item);
+      const filled = text !== null;
+      const newText = filled ? text : '—';
+      if (val.textContent !== newText && filled) {
+        item.classList.add('flash');
+        requestAnimationFrame(() => requestAnimationFrame(() => item.classList.remove('flash')));
+      }
+      val.textContent = newText;
+      item.classList.toggle('filled', filled);
+    }
+
+    function countTo(target) {
+      const el = $('#score');
+      const from = shownScore ?? 7;
+      if (from === target && shownScore !== null) return;
+      const start = performance.now();
+      const dur = 550;
+      const tick = now => {
+        const t = Math.min(1, (now - start) / dur);
+        const eased = 1 - Math.pow(1 - t, 3);
+        el.textContent = Math.round(from + (target - from) * eased);
+        if (t < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+      shownScore = target;
+    }
+
+    function focusField(key) {
+      const step = $(`#step-${key}`);
+      step.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => {
+        if (key === 'age') ageInput.focus();
+        else if (key === 'etiology') trigger.focus();
+        else { const r = $(`input[name="${key}"]`); r && r.focus(); }
+      }, 350);
+    }
+
+    /* ---------- Main update ---------- */
+    const result = $('#result');
+
+    function update() {
+      const age = classifyAge(ageInput.value.trim());
+      const vals = {
+        gender: radio('gender'),
+        distance: radio('distance'),
+        frequency: radio('frequency'),
+        idwg: radio('idwg')
+      };
+
+      // Age visuals
+      $('#age-field').classList.toggle('invalid', !age.valid && !age.empty);
+      $('#age-msg').classList.toggle('show', !age.valid && !age.empty);
+      const ageCat = $('#age-cat');
+      ageCat.textContent = age.valid ? age.cat : '';
+      ageCat.classList.toggle('show', age.valid);
+
+      const filled = {
+        age: age.valid,
+        gender: !!vals.gender,
+        distance: !!vals.distance,
+        etiology: !!selectedEtiology,
+        frequency: !!vals.frequency,
+        idwg: !!vals.idwg
+      };
+
+      Object.entries(filled).forEach(([k, v]) => $(`#step-${k}`).classList.toggle('done', v));
+
+      // Recap
+      setRecap('age', age.valid ? `${age.age} tahun · ${age.cat}` : null);
+      setRecap('gender', vals.gender ? vals.gender.label : null);
+      setRecap('distance', vals.distance ? vals.distance.label : null);
+      setRecap('etiology', selectedEtiology ? `${selectedEtiology.code} · ${selectedEtiology.id}` : null);
+      setRecap('frequency', vals.frequency ? vals.frequency.label : null);
+      setRecap('idwg', vals.idwg ? vals.idwg.label : null);
+
+      const count = Object.values(filled).filter(Boolean).length;
+      $('#ring-label').textContent = `${count}/6`;
+      $('#ring-fill').style.strokeDashoffset = 138.2 * (1 - count / 6);
+
+      const missingKeys = Object.keys(filled).filter(k => !filled[k]);
+
+      if (count < 6) {
+        result.className = 'card result';
+        $('#status-chip').textContent = count === 0 ? 'Menunggu data' : `${count} dari 6 terisi`;
+        $('#score').textContent = '–';
+        shownScore = null;
+        $('#category').textContent = 'Belum dinilai';
+        $('#needle').style.transform = 'rotate(-90deg)';
+        $('#pending-text').textContent = count === 0
+          ? 'Lengkapi parameter berikut untuk melihat hasil:'
+          : `Tinggal ${6 - count} parameter lagi:`;
+        $('#missing').innerHTML = missingKeys.map(k => `<button type="button" data-k="${k}">${FIELD_NAMES[k]}</button>`).join('');
+        $('#recap-summary').textContent = 'Belum lengkap';
+        $('#copy-btn').disabled = true;
+        $('#mbar-title').textContent = `${count} dari 6 terisi`;
+        $('#mbar-sub').textContent = 'Lengkapi parameter untuk melihat hasil';
+        return;
+      }
+
+      const total = age.w + vals.gender.w + vals.distance.w + selectedEtiology.w + vals.frequency.w + vals.idwg.w;
+
+      let tone, cat, rec;
+      if (total < 10) {
+        tone = 'low'; cat = 'Risiko Rendah';
+        rec = 'Pasien relatif stabil secara hemodinamik. Fokuskan pada edukasi preventif: restriksi cairan standar (500 ml + urine output 24 jam terakhir), diet rendah natrium, dan pemantauan berat badan kering secara mandiri di rumah.';
+      } else if (total <= 12) {
+        tone = 'med'; cat = 'Risiko Sedang';
+        rec = 'Terdapat potensi instabilitas klinis tersembunyi. Evaluasi ulang kepatuhan restriksi cairan dan tren IDWG harian, hitung ulang kecukupan target Kt/V, serta tinjau regimen antihipertensi bersama farmasi klinis atau dokter ruangan.';
+      } else {
+        tone = 'high'; cat = 'Risiko Tinggi';
+        rec = 'Lakukan pengawasan hemodinamik ketat intra-dialitik (tekanan darah tiap 15–30 menit), gunakan profiling UF atau natrium bila mesin mendukung. Wajib didokumentasikan, dilaporkan, dan dikonsultasikan segera ke DPJP Ginjal Hipertensi.';
+      }
+
+      result.className = `card result ready ${tone}`;
+      $('#status-chip').textContent = 'Penilaian lengkap';
+      $('#category').textContent = cat;
+      $('#recommendation').textContent = rec;
+      countTo(total);
+      $('#needle').style.transform = `rotate(${-90 + scoreToFrac(total) * 180}deg)`;
+      $('#recap-summary').textContent = `${cat} · ${total}/15`;
+      $('#copy-btn').disabled = false;
+      $('#mbar-title').textContent = `${cat} · ${total}/15`;
+      $('#mbar-sub').textContent = 'Penilaian lengkap';
+    }
+
+    ageInput.addEventListener('input', update);
+    $$('input[type="radio"]').forEach(r => r.addEventListener('change', update));
+    $('#missing').addEventListener('click', ev => {
+      const b = ev.target.closest('button');
+      if (b) focusField(b.dataset.k);
+    });
+
+    $('#reset-btn').addEventListener('click', () => {
+      $('#risk-form').reset();
+      ageInput.value = '';
+      resetCombo();
+      update();
+      focusField('age');
+    });
+
+    $('#mbar-btn').addEventListener('click', () => {
+      $('#result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    /* ---------- Copy ---------- */
+    $('#copy-btn').addEventListener('click', async () => {
+      const rows = $$('.recap-item').map(i => `${$('.recap-key', i).textContent.padEnd(22, ' ')}: ${$('.recap-val', i).textContent}`);
+      const text = [
+        'REKAPITULASI PENILAIAN DIALYSENSE',
+        $('#recap-date').textContent,
+        '----------------------------------------',
+        ...rows,
+        `${'Kesimpulan'.padEnd(22, ' ')}: ${$('#recap-summary').textContent}`,
+        `${'Tindak Lanjut'.padEnd(22, ' ')}: ${$('#recommendation').textContent}`
+      ].join('\n');
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+      }
+      const ok = $('#copy-ok');
+      ok.classList.add('show');
+      setTimeout(() => ok.classList.remove('show'), 2200);
+    });
+
+    $('#recap-date').textContent = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+    /* ---------- Edu tabs ---------- */
+    const tabs = $$('.edu-tab');
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.setAttribute('aria-selected', 'false'));
+        $$('.edu-panel').forEach(p => p.classList.remove('active'));
+        tab.setAttribute('aria-selected', 'true');
+        $(`#${tab.getAttribute('aria-controls')}`).classList.add('active');
+        tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      });
+      tab.addEventListener('keydown', ev => {
+        if (['ArrowDown', 'ArrowRight'].includes(ev.key)) { ev.preventDefault(); tabs[(i + 1) % tabs.length].focus(); tabs[(i + 1) % tabs.length].click(); }
+        if (['ArrowUp', 'ArrowLeft'].includes(ev.key)) { ev.preventDefault(); tabs[(i - 1 + tabs.length) % tabs.length].focus(); tabs[(i - 1 + tabs.length) % tabs.length].click(); }
+      });
+    });
+
+    /* ---------- Scroll reveal ---------- */
+    const edu = $('#edu');
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) { edu.classList.add('in'); io.disconnect(); } });
+      }, { threshold: 0.08 });
+      io.observe(edu);
+    } else {
+      edu.classList.add('in');
+    }
+
+    update();
+  </script>
+</body>
+
+</html>
